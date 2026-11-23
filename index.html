@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Green’s Theorem — A Research-Style Guided Proof</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;700&family=STIX+Two+Text:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f4f8ff;--bgimg:linear-gradient(120deg,#ffe8d9,#dff3ff,#e3fbe1,#fff0f6,#fff8d6,#e6ecff);--card:rgba(255,255,255,.74);--ink:#1c2233;--mut:#586078;--line:rgba(60,80,120,.16);--c1:#2f7de1;--c2:#ff5c7a;--c3:#0fb5a3;--c4:#f59e0b;color-scheme:light;
+--fb:'Plus Jakarta Sans',system-ui,sans-serif;--fh:'Fraunces',Georgia,serif;--fm:'STIX Two Text','Times New Roman',serif;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0c1d27;--bgimg:linear-gradient(120deg,#06202b,#0e2f2b,#2b2411,#2b1a1c,#0a2a3b,#13301f);--card:rgba(14,34,44,.74);--ink:#eaf6f4;--mut:#9dbfc4;--line:rgba(150,220,230,.2);--c1:#4cc9f0;--c2:#ff8a80;--c3:#3ddc97;--c4:#ffc857;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0c1d27;--bgimg:linear-gradient(120deg,#06202b,#0e2f2b,#2b2411,#2b1a1c,#0a2a3b,#13301f);--card:rgba(14,34,44,.74);--ink:#eaf6f4;--mut:#9dbfc4;--line:rgba(150,220,230,.2);--c1:#4cc9f0;--c2:#ff8a80;--c3:#3ddc97;--c4:#ffc857;color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:calc(72px + env(safe-area-inset-top,0px));background:var(--bgimg);background-size:300% 300%;background-attachment:fixed;animation:bgm 30s ease infinite}
+@keyframes bgm{0%{background-position:0 50%}50%{background-position:100% 50%}100%{background-position:0 50%}}
+body{margin:0;color:var(--ink);font:17px/1.7 var(--fb);background:none}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:30}
+h1,h2,h3{font-family:var(--fh);line-height:1.12;margin:0 0 .5em;letter-spacing:-.01em}
+h2{font-size:clamp(2rem,4.5vw,2.9rem)}h3{font-size:1.3rem}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+nav .in{max-width:1100px;margin:auto;display:flex;align-items:center;gap:6px;padding:10px 16px;overflow-x:auto;white-space:nowrap}
+nav b{font-family:var(--fh);margin-right:auto;font-size:1.15rem;color:var(--c1)}
+nav a{color:var(--mut);text-decoration:none;font-size:.9rem;padding:6px 13px;border-radius:99px;transition:.2s}
+nav a:hover{color:var(--ink)}nav a.on{background:var(--c1);color:#fff}
+#bar{position:fixed;left:0;top:0;height:3px;background:linear-gradient(90deg,var(--c1),var(--c2),var(--c4));width:0;z-index:40}
+#tg{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:99px;padding:4px 10px;cursor:pointer}
+section{max-width:1000px;margin:auto;padding:80px 20px 10px}
+.hero{position:relative;min-height:92vh;display:grid;place-items:center;text-align:center;overflow:hidden;padding:60px 20px}
+.hero canvas{position:absolute;inset:0;width:100%;height:100%;border:0;border-radius:0;background:transparent;opacity:.55}
+.hin{position:relative;max-width:820px}
+.greet{font-size:clamp(3rem,10vw,6.5rem);margin:.15em 0}
+.greet span,.an{display:inline-block;opacity:0;animation:rise .9s cubic-bezier(.2,.9,.3,1.2) forwards;animation-delay:calc(var(--i)*.3s + .2s)}
+.grad{background:linear-gradient(90deg,var(--c1),var(--c2),var(--c4));-webkit-background-clip:text;background-clip:text;color:transparent}
+@keyframes rise{from{opacity:0;transform:translateY(46px) rotate(3deg) scale(.9)}to{opacity:1;transform:none}}
+.sub{font-size:1.2rem;color:var(--mut);max-width:620px;margin:0 auto 10px}
+.curve{width:min(420px,80%);display:block;margin:0 auto}
+.curve path{fill:none;stroke:url(#gr);stroke-width:5;stroke-linecap:round;stroke-dasharray:900;stroke-dashoffset:900;animation:dr 3.5s .9s ease forwards}
+@keyframes dr{to{stroke-dashoffset:0}}
+.heq{font-family:var(--fm);font-style:italic;font-size:clamp(1.4rem,4vw,2.3rem);margin:8px 0 22px}
+.tag{display:inline-block;font-size:.75rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 12px;border-radius:99px;background:var(--c3);color:#fff;margin-bottom:10px}
+canvas{width:100%;height:auto;display:block;border-radius:20px;background:var(--card);border:1px solid var(--line)}
+.eq{font-family:var(--fm);font-size:clamp(1.55rem,4.2vw,2.6rem);text-align:center;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:28px 16px;margin:18px 0;overflow-x:auto;box-shadow:0 12px 40px color-mix(in srgb,var(--c1) 14%,transparent),inset 4px 0 0 var(--c1);line-height:1.9}
+.eq i{font-style:italic}.eq small{display:block;font:500 .78rem var(--fb);color:var(--mut);margin-top:6px;letter-spacing:.02em}
+.ps .eq{font-size:clamp(1.3rem,3.4vw,2.1rem)}
+.p{color:var(--c1)}.q{color:var(--c2)}.d{color:var(--c3)}.a{color:var(--c4)}
+.fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;margin:0 .18em;font-size:.82em;line-height:1.25}
+.fr>span:first-child{border-bottom:2px solid currentColor;padding:0 .25em}
+.il{position:relative;display:inline-block;padding:0 .5em 0 .05em;font-size:1.15em}
+.il .u,.il .l{position:absolute;right:-.1em;font-size:.45em;white-space:nowrap}.il .u{top:-.7em}.il .l{bottom:-.8em}
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));margin:20px 0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px;transition:transform .25s,box-shadow .25s}
+.card:hover{transform:translateY(-5px);box-shadow:0 14px 34px color-mix(in srgb,var(--c1) 20%,transparent)}
+.card .ic{font-size:1.8rem}.card p{color:var(--mut);margin:.3em 0 0;font-size:.96rem}
+.ctl{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin:12px 0;font-size:.92rem;color:var(--mut)}
+.ctl input[type=range]{accent-color:var(--c1);flex:1;min-width:140px}
+.ctl output,.ctl b{color:var(--ink)}
+button.b{border:0;background:var(--c1);color:#fff;padding:9px 18px;border-radius:99px;cursor:pointer;font:600 .9rem var(--fb);transition:.2s}
+button.b:hover{transform:scale(1.05)}button.b.alt{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+.note{border-left:4px solid var(--c4);background:color-mix(in srgb,var(--c4) 13%,transparent);padding:14px 18px;border-radius:0 14px 14px 0;margin:18px 0}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 0}
+.pills a{text-decoration:none;color:var(--ink);border:1px solid var(--line);background:var(--card);padding:5px 14px;border-radius:99px;font-size:.88rem}
+.pills a:hover{background:var(--c1);color:#fff}
+.part{margin-top:70px;padding-top:20px;border-top:2px dashed var(--line)}
+.ps{display:flex;gap:16px;margin:20px 0;align-items:flex-start}
+.ps .n{flex:none;width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--c1),var(--c2));color:#fff;display:grid;place-items:center;font-weight:700}
+.ps>div{flex:1;min-width:0}.ps p{margin:0}
+.qed{text-align:right;font-family:var(--fm);font-size:1.6rem;color:var(--c3)}
+select{font:inherit;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:6px 10px}
+.rv{opacity:0;transform:translateY(50px) scale(.94);transition:opacity .7s ease,transform .8s cubic-bezier(.2,.9,.3,1.15);transition-delay:var(--d,0s)}
+.rv.in{opacity:1;transform:none}
+#fab{position:fixed;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:8px;z-index:25}
+#fab button{width:48px;height:48px;border-radius:50%;border:0;color:#fff;font-size:1.1rem;cursor:pointer;background:linear-gradient(135deg,var(--c1),var(--c2));box-shadow:0 8px 24px rgba(0,0,0,.25);transition:.2s}
+#fab button:hover{transform:scale(1.1)}
+footer{text-align:center;color:var(--mut);padding:70px 20px 90px;font-size:.9rem}
+@media(prefers-reduced-motion:reduce){.rv,.greet span,.an{animation:none;opacity:1;transform:none;transition:none}}
+#bgc{position:fixed;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none;border:0;border-radius:0;background:none}
+.card,.eq,.note,details{backdrop-filter:blur(6px)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.chips span{padding:3px 12px;border-radius:99px;background:color-mix(in srgb,var(--c1) 16%,transparent);font-size:.82rem;font-weight:600}
+.grid .card b.yr{font-family:var(--fh);font-size:1.8rem;color:var(--c2);display:block;line-height:1.1}
+details{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 20px;margin:14px 0}
+details summary{cursor:pointer;font-weight:700;font-family:var(--fh);font-size:1.1rem}
+details[open] summary{color:var(--c1);margin-bottom:8px}
+ol.refs{color:var(--mut);font-size:.95rem}
+.lead{font-size:1.15rem;margin:0}
+</style></head><body>
+<div id="bar"></div>
+<nav><div class="in"><b>∮ Green</b>
+<a href="#welcome">Hello</a><a href="#abstract">Abstract</a><a href="#history">History</a><a href="#basics">Basics</a><a href="#statement">Statement</a><a href="#intuition">Intuition</a><a href="#proof">Proof</a><a href="#ext">Corollaries</a><a href="#examples">Examples</a><a href="#fine">Pitfalls</a><a href="#exercises">Exercises</a><a href="#stokes">Stokes</a><a href="#gauss">Divergence</a><a href="#general">Unification</a><a href="#conclusion">Conclusion</a>
+<button id="tg" title="Toggle theme">◐</button></div></nav>
+
+<header class="hero" id="welcome"><canvas id="hero"></canvas>
+<div class="hin">
+<span class="tag an" style="--i:0">A research-style guided tour</span>
+<h1 class="greet"><span style="--i:1">Hello,</span> <span class="grad" style="--i:2">Reader.</span></h1>
+<p class="sub an" style="--i:4">Green’s Theorem, proved line by line — every step paired with something to drag, play, or watch.</p>
+<svg class="curve" viewBox="0 0 400 130"><defs><linearGradient id="gr"><stop offset="0" style="stop-color:var(--c1)"/><stop offset=".5" style="stop-color:var(--c2)"/><stop offset="1" style="stop-color:var(--c4)"/></linearGradient></defs>
+<path id="cp" d="M200 12C290 4 380 40 372 78C364 116 250 124 190 114C110 120 22 100 30 62C38 24 120 18 200 12Z"/>
+<circle r="7" fill="#f5a000"><animateMotion dur="7s" begin="1s" repeatCount="indefinite" path="M200 12C290 4 380 40 372 78C364 116 250 124 190 114C110 120 22 100 30 62C38 24 120 18 200 12Z"/></circle></svg>
+<div class="heq an" style="--i:7">∮ <span class="p">P</span> dx + <span class="q">Q</span> dy = ∬ <span class="d">(Q<sub>x</sub> − P<sub>y</sub>)</span> dA</div><br>
+<div class="an" style="--i:8"><button class="b" id="begin">Begin the tour ↓</button> <button class="b alt" id="autoh">▶ Auto-scroll the whole page</button></div>
+</div></header>
+
+<section id="abstract"><span class="tag">Abstract</span><h2>A one-page summary</h2>
+<div class="card"><p class="lead">Green’s theorem is the planar prototype of a general principle: the integral of a derivative over a region is determined by values on its boundary. This paper-style tour gives a complete proof for simple regions using only Fubini’s theorem and the fundamental theorem of calculus, extends it by decomposition to general and multiply connected regions, derives the flux form, and develops corollaries (area formulas, curl as circulation density, Green’s identities, Cauchy’s theorem). We then lift the same argument to Stokes’ theorem, the divergence theorem, and the generalized Stokes theorem. Every step is paired with a figure that animates on its own.</p>
+<div class="chips"><span>line integrals</span><span>curl &amp; divergence</span><span>Fubini</span><span>orientation</span><span>Stokes</span><span>Gauss</span><span>differential forms</span></div></div>
+<div class="pills"><a href="#history">History</a><a href="#basics">Preliminaries</a><a href="#statement">Statement</a><a href="#proof">Proof</a><a href="#ext">Corollaries</a><a href="#stokes">Stokes</a><a href="#gauss">Divergence</a><a href="#general">Unification</a><a href="#conclusion">Conclusion</a></div></section>
+
+<section id="history"><span class="tag">Context</span><h2>Where the theorem comes from</h2>
+<p>The result is named for the English self-taught mathematician George Green, but the story is a relay. Green’s 1828 essay on electricity and magnetism contained the three-dimensional integral identities that bear his name; the planar statement used today is commonly credited to Cauchy and Riemann. Dates and attributions below are as usually cited.</p>
+<div class="grid">
+<div class="card"><b class="yr">1828</b><h3>George Green</h3><p>Privately publishes <em>An Essay on the Application of Mathematical Analysis to the Theories of Electricity and Magnetism</em>, introducing the potential and the integral identities now named after him.</p></div>
+<div class="card"><b class="yr">1846</b><h3>Cauchy</h3><p>Writes an integral over a closed curve as an integral over the enclosed area, the planar form, in his work on complex integration.</p></div>
+<div class="card"><b class="yr">1851</b><h3>Riemann</h3><p>Uses and proves the planar theorem in his doctoral dissertation on functions of a complex variable.</p></div>
+<div class="card"><b class="yr">1854</b><h3>Stokes</h3><p>Poses the curl theorem as a Cambridge exam question, after learning of it from Kelvin; it is now called Stokes’ theorem.</p></div>
+<div class="card"><b class="yr">1900s</b><h3>Poincaré · Cartan</h3><p>Differential forms and the exterior derivative unify all of these results into a single statement.</p></div></div>
+<p>Why does it matter? It converts a problem about the whole region into one about its edge, or vice versa. That trade is the engine behind conservation laws, potential theory, and Cauchy’s theorem, and it is the reason a surveyor can find an area by walking its perimeter.</p></section>
+
+<section id="basics"><span class="tag">Preliminaries</span><h2>Fields, work, curl and divergence</h2>
+<p>A planar vector field is a pair <b>F</b> = (<i>P</i>, <i>Q</i>) of functions on a region. Its <b>work</b> along a curve <i>C</i> is the line integral of its tangential component, independent of how <i>C</i> is parametrized (up to direction):</p>
+<div class="eq">∫<sub><i>C</i></sub> <b>F</b>·<i>d</i><b>r</b> = ∫<sub><i>C</i></sub> <span class="p"><i>P</i></span> <i>dx</i> + <span class="q"><i>Q</i></span> <i>dy</i><small>the integrand of Green’s theorem</small></div>
+<p>Two local quantities describe how a field behaves near a point. Watch both: a paddle wheel spins at a rate set by the curl, and a ring of dust swells at a rate set by the divergence.</p>
+<canvas id="pw" width="1400" height="700"></canvas>
+<div class="ctl"><b id="pwc"></b></div>
+<div class="eq"><span class="d">curl<sub>z</sub> <b>F</b> = ⟦F|∂<i>Q</i>|∂<i>x</i>⟧ − ⟦F|∂<i>P</i>|∂<i>y</i>⟧</span> &nbsp;&nbsp; <span class="a">div <b>F</b> = ⟦F|∂<i>P</i>|∂<i>x</i>⟧ + ⟦F|∂<i>Q</i>|∂<i>y</i>⟧</span><small>spin per unit area &nbsp;·&nbsp; expansion per unit area</small></div>
+<p>The geometry also needs care. A <b>Jordan curve</b> is a simple closed curve; it splits the plane into an inside and an outside. A curve is <b>positively oriented</b> when the inside lies to the left as you travel. We assume the boundary is piecewise C¹, so the line integrals above make sense.</p>
+<div class="note"><b>Reading guide.</b> Parts 1–3 below are the heart of the proof. Parts 4–6 stretch it to harder regions and to the flux form. The later sections show where the result leads.</div></section>
+
+<section id="statement"><span class="tag">The theorem</span>
+<h2>The statement</h2>
+<p>Let <i>D</i> ⊂ ℝ² be a region whose boundary <i>C</i> = ∂<i>D</i> is a positively oriented (counter-clockwise), piecewise-smooth, simple closed curve. If <i>P</i>, <i>Q</i> are C¹ on an open set containing <i>D</i>, then:</p>
+<div class="eq" style="font-size:clamp(1.7rem,4.8vw,3rem)">∮<sub><i>C</i></sub> <span class="p"><i>P</i></span> <i>dx</i> + <span class="q"><i>Q</i></span> <i>dy</i><br>=<br>∬<sub><i>D</i></sub> <span class="d">( ⟦F|∂<i>Q</i>|∂<i>x</i>⟧ − ⟦F|∂<i>P</i>|∂<i>y</i>⟧ )</span> <i>dA</i><small>circulation around the boundary = total curl inside</small></div>
+<div class="grid">
+<div class="card"><div class="ic">🌀</div><h3>Circulation form</h3><p>The loop integral of <b>F</b> = (<i>P</i>,<i>Q</i>) equals the integral of scalar curl ∂ₓ<i>Q</i> − ∂ᵧ<i>P</i> over <i>D</i>.</p></div>
+<div class="card"><div class="ic">💧</div><h3>Flux form</h3><p>∮ <b>F</b>·<b>n</b> <i>ds</i> = ∬ div <b>F</b> <i>dA</i> — proved in Part 6.</p></div>
+<div class="card"><div class="ic">📐</div><h3>Forms</h3><p>With ω = <i>P dx + Q dy</i>: ∮<sub>∂D</sub> ω = ∬<sub>D</sub> <i>d</i>ω.</p></div></div></section>
+
+<section id="intuition"><span class="tag">Big picture</span>
+<h2>Why it’s true: cancellation</h2>
+<p>Chop <i>D</i> into tiny cells. Around each cell the circulation is ≈ curl × area. Add them up: each <em>interior</em> edge is traversed twice in opposite directions and cancels, leaving only the outer boundary.</p>
+<canvas id="grid" width="1400" height="760"></canvas>
+<div class="ctl"><label>Cells per side <input type="range" id="n" min="2" max="16" value="6"></label><button class="b" id="cx">Cancel interior edges</button><span id="gl"></span></div>
+<div class="eq"><span class="a">Σ</span> <span class="d">curl</span> · Δ<i>A</i> <span class="d">→</span> ∬<sub><i>D</i></sub> <span class="d">curl</span> <i>dA</i><small>the rest of this page makes that cancellation rigorous</small></div></section>
+
+<section id="proof"><span class="tag">Complete proof</span>
+<h2>The proof, in seven parts</h2>
+<p>We prove the theorem for simple regions by two lemmas, then extend it to general regions, regions with holes, and the flux form.</p>
+<div class="pills"><a href="#p0">0 · Groundwork</a><a href="#p1">1 · Lemma A</a><a href="#p2">2 · Lemma B</a><a href="#p3">3 · Combine</a><a href="#p4">4 · General regions</a><a href="#p5">5 · Holes</a><a href="#p6">6 · Flux form</a></div>
+
+<article class="part" id="p0"><span class="tag">Part 0</span><h3 style="font-size:1.8rem">Groundwork: definitions and tools</h3>
+<p>Move the dot around the curve. “Positive orientation” means the interior is always on your <b style="color:var(--c3)">left</b>.</p>
+<canvas id="or" width="1400" height="760"></canvas>
+<div class="ps"><b class="n">1</b><div><p>For a smooth parametrization <i>t</i> ↦ (<i>x</i>(<i>t</i>),<i>y</i>(<i>t</i>)), <i>t</i> ∈ [<i>α</i>,<i>β</i>], the line integral is defined by</p>
+<div class="eq">∫<sub><i>C</i></sub> <span class="p"><i>P</i></span><i>dx</i> + <span class="q"><i>Q</i></span><i>dy</i> = ⟦I|<i>β</i>|<i>α</i>⟧ [ <span class="p"><i>P</i></span> <i>x′</i>(<i>t</i>) + <span class="q"><i>Q</i></span> <i>y′</i>(<i>t</i>) ] <i>dt</i><small>reversing direction flips the sign; piecewise curves add</small></div></div></div>
+<div class="ps"><b class="n">2</b><div><p><b>Type I</b>: <i>D</i> = {<i>a ≤ x ≤ b</i>, <i>g₁(x) ≤ y ≤ g₂(x)</i>}. <b>Type II</b>: <i>D</i> = {<i>c ≤ y ≤ d</i>, <i>h₁(y) ≤ x ≤ h₂(y)</i>}. A region that is both is <b>simple</b> (disks, ellipses, triangles, convex sets).</p></div></div>
+<div class="ps"><b class="n">3</b><div><p>Two tools: Fubini’s theorem, and the Fundamental Theorem of Calculus on each vertical (or horizontal) slice:</p>
+<div class="eq">⟦I|<i>g₂</i>(<i>x</i>)|<i>g₁</i>(<i>x</i>)⟧ <span class="p">⟦F|∂<i>P</i>|∂<i>y</i>⟧</span> <i>dy</i> = <span class="p"><i>P</i>(<i>x</i>, <i>g₂</i>(<i>x</i>)) − <i>P</i>(<i>x</i>, <i>g₁</i>(<i>x</i>))</span></div></div></div>
+</article>
+
+<article class="part" id="p1"><span class="tag">Part 1</span><h3 style="font-size:1.8rem">Lemma A — ∮ <i>P dx</i> = −∬ ∂<sub>y</sub><i>P</i> <i>dA</i> on a type I region</h3>
+<p>Sweep a vertical strip across <i>D</i>. Each strip’s integral collapses to the difference of <i>P</i> at its top and bottom — exactly the values the boundary curves <span class="a">C₃</span> and <span class="p">C₁</span> “see”.</p>
+<canvas id="sA" width="1400" height="800"></canvas>
+<div class="ctl"><button class="b" id="sAp">▶ Sweep</button><input type="range" id="sAs" min="0" max="1" step=".001" value=".4"><span id="sAc"></span></div>
+<div class="ps"><b class="n">1</b><div><p>Since ∂<i>P</i>/∂<i>y</i> is continuous on compact <i>D</i>, Fubini applies:</p>
+<div class="eq">∬<sub><i>D</i></sub> <span class="p">⟦F|∂<i>P</i>|∂<i>y</i>⟧</span> <i>dA</i> = ⟦I|<i>b</i>|<i>a</i>⟧ ⟦I|<i>g₂</i>(<i>x</i>)|<i>g₁</i>(<i>x</i>)⟧ <span class="p">⟦F|∂<i>P</i>|∂<i>y</i>⟧</span> <i>dy dx</i></div></div></div>
+<div class="ps"><b class="n">2</b><div><p>Apply the FTC to the inner integral:</p>
+<div class="eq">= ⟦I|<i>b</i>|<i>a</i>⟧ [ <span class="p"><i>P</i>(<i>x</i>,<i>g₂</i>(<i>x</i>))</span> − <span class="p"><i>P</i>(<i>x</i>,<i>g₁</i>(<i>x</i>))</span> ] <i>dx</i></div></div></div>
+<div class="ps"><b class="n">3</b><div><p>Now compute ∮<sub>C</sub> <i>P dx</i> piece by piece. On <span class="p">C₁</span> (bottom, left to right): <i>x = t, y = g₁(t)</i>. On <span class="a">C₃</span> (top, traversed right to left) we get a minus sign. On the vertical sides <i>C₂, C₄</i>, <i>x</i> is constant so <i>dx</i> = 0:</p>
+<div class="eq"><span class="p">∫<sub>C₁</sub> <i>P dx</i> = ⟦I|<i>b</i>|<i>a</i>⟧ <i>P</i>(<i>t</i>,<i>g₁</i>(<i>t</i>)) <i>dt</i></span><br><span class="a">∫<sub>C₃</sub> <i>P dx</i> = − ⟦I|<i>b</i>|<i>a</i>⟧ <i>P</i>(<i>t</i>,<i>g₂</i>(<i>t</i>)) <i>dt</i></span><br>∫<sub>C₂</sub> = ∫<sub>C₄</sub> = 0</div></div></div>
+<div class="ps"><b class="n">4</b><div><p>Add the four pieces and compare with Step 2:</p>
+<div class="eq">∮<sub><i>C</i></sub> <span class="p"><i>P</i></span> <i>dx</i> = <span class="d">− ∬<sub><i>D</i></sub> ⟦F|∂<i>P</i>|∂<i>y</i>⟧ <i>dA</i></span></div></div></div>
+<div class="qed">∎ Lemma A</div></article>
+
+<article class="part" id="p2"><span class="tag">Part 2</span><h3 style="font-size:1.8rem">Lemma B — ∮ <i>Q dy</i> = +∬ ∂<sub>x</sub><i>Q</i> <i>dA</i> on a type II region</h3>
+<p>Same idea, rotated: sweep a <em>horizontal</em> strip. Now the left and right curves matter, and the sign flips because counter-clockwise means the right side goes <em>up</em>.</p>
+<canvas id="sB" width="1400" height="800"></canvas>
+<div class="ctl"><button class="b" id="sBp">▶ Sweep</button><input type="range" id="sBs" min="0" max="1" step=".001" value=".4"><span id="sBc"></span></div>
+<div class="ps"><b class="n">1</b><div><p>Fubini, integrating in <i>x</i> first, then the FTC:</p>
+<div class="eq">∬<sub><i>D</i></sub> <span class="q">⟦F|∂<i>Q</i>|∂<i>x</i>⟧</span> <i>dA</i> = ⟦I|<i>d</i>|<i>c</i>⟧ [ <span class="q"><i>Q</i>(<i>h₂</i>(<i>y</i>),<i>y</i>)</span> − <span class="q"><i>Q</i>(<i>h₁</i>(<i>y</i>),<i>y</i>)</span> ] <i>dy</i></div></div></div>
+<div class="ps"><b class="n">2</b><div><p>Boundary: the right curve <i>x = h₂(y)</i> is traversed upward (+), the left curve <i>x = h₁(y)</i> downward (−), and on the horizontal sides <i>dy</i> = 0:</p>
+<div class="eq"><span class="q">∮<sub><i>C</i></sub> <i>Q dy</i> = ⟦I|<i>d</i>|<i>c</i>⟧ <i>Q</i>(<i>h₂</i>(<i>y</i>),<i>y</i>) <i>dy</i> − ⟦I|<i>d</i>|<i>c</i>⟧ <i>Q</i>(<i>h₁</i>(<i>y</i>),<i>y</i>) <i>dy</i></span></div></div></div>
+<div class="ps"><b class="n">3</b><div><p>The right-hand sides match:</p>
+<div class="eq">∮<sub><i>C</i></sub> <span class="q"><i>Q</i></span> <i>dy</i> = <span class="d">+ ∬<sub><i>D</i></sub> ⟦F|∂<i>Q</i>|∂<i>x</i>⟧ <i>dA</i></span></div></div></div>
+<div class="qed">∎ Lemma B</div></article>
+
+<article class="part" id="p3"><span class="tag">Part 3</span><h3 style="font-size:1.8rem">Combine: Green’s theorem on simple regions</h3>
+<p>If <i>D</i> is both type I and type II, both lemmas hold on the same curve <i>C</i>. Add them.</p>
+<div class="eq"><span class="p">∮ <i>P dx</i></span> + <span class="q">∮ <i>Q dy</i></span> = <span class="p">− ∬ ⟦F|∂<i>P</i>|∂<i>y</i>⟧ <i>dA</i></span> + <span class="q">∬ ⟦F|∂<i>Q</i>|∂<i>x</i>⟧ <i>dA</i></span><br>⟹ ∮ <i>P dx + Q dy</i> = <span class="d">∬ ( ⟦F|∂<i>Q</i>|∂<i>x</i>⟧ − ⟦F|∂<i>P</i>|∂<i>y</i>⟧ ) <i>dA</i></span> &nbsp;∎</div>
+<p><b>Check it numerically.</b> Pick a field and an ellipse. The tool computes both sides by brute force and shows the curl as a heat map (<span style="color:var(--c2)">coral</span> positive, <span style="color:var(--c1)">blue</span> negative).</p>
+<canvas id="vc" width="1400" height="720"></canvas>
+<div class="ctl"><select id="fsel"></select><label>a <input type="range" id="va" min="1" max="4" step=".1" value="3"></label><label>b <input type="range" id="vb" min="1" max="2.5" step=".1" value="2"></label></div>
+<div class="eq" style="font-size:clamp(1.2rem,3vw,1.8rem)"><span id="vf"></span><br><span id="vo"></span></div></article>
+
+<article class="part" id="p4"><span class="tag">Part 4</span><h3 style="font-size:1.8rem">General regions: cut, apply, glue</h3>
+<p>Many useful regions aren’t simple. Split <i>D</i> into finitely many simple pieces <i>D₁,…,D<sub>m</sub></i> that overlap only along shared arcs. Drag the slider to pull the pieces apart, then cancel the shared edges.</p>
+<canvas id="dc" width="1400" height="760"></canvas>
+<div class="ctl"><label>Pull apart <input type="range" id="dsp" min="0" max="1" step=".01" value=".6"></label><button class="b" id="dcx">Cancel shared edges</button></div>
+<div class="ps"><b class="n">1</b><div><p>Green’s theorem holds on each piece (Part 3). Sum over <i>k</i>:</p>
+<div class="eq"><span class="a">Σ<sub><i>k</i></sub> ∮<sub>∂D<sub>k</sub></sub></span> <i>P dx + Q dy</i> = <span class="d">Σ<sub><i>k</i></sub> ∬<sub>D<sub>k</sub></sub></span> ( <i>Q<sub>x</sub> − P<sub>y</sub></i> ) <i>dA</i> = <span class="d">∬<sub><i>D</i></sub> ( <i>Q<sub>x</sub> − P<sub>y</sub></i> ) <i>dA</i></span></div></div></div>
+<div class="ps"><b class="n">2</b><div><p>A shared arc Γ appears in two pieces, with <em>opposite</em> orientations, so its two contributions are negatives: ∫<sub>Γ</sub> + ∫<sub>−Γ</sub> = 0. Only arcs on ∂<i>D</i> remain, each once, counter-clockwise.</p>
+<div class="eq"><span class="a">Σ<sub><i>k</i></sub> ∮<sub>∂D<sub>k</sub></sub></span> = ∮<sub>∂<i>D</i></sub> <small>interior arcs cancel in pairs</small></div></div></div>
+<div class="qed">∎ General regions</div></article>
+
+<article class="part" id="p5"><span class="tag">Part 5</span><h3 style="font-size:1.8rem">Regions with holes</h3>
+<p>For an annulus, cut a bridge so the region becomes simply connected. Shrink the cut: the two sides of the bridge are traversed in opposite directions and cancel.</p>
+<canvas id="ac" width="1400" height="800"></canvas>
+<div class="ctl"><label>Gap angle <input type="range" id="ag" min="0" max=".7" step=".005" value=".5"></label></div>
+<div class="ps"><b class="n">1</b><div><p>The cut region is simply connected, so Part 4 applies, with boundary = outer arc + bridge + inner arc (clockwise) + bridge.</p></div></div>
+<div class="ps"><b class="n">2</b><div><p>Let the gap → 0. The bridge terms cancel, the arcs close up, and the inner circle keeps its clockwise orientation:</p>
+<div class="eq"><span class="p">∮<sub>outer, CCW</sub></span> + <span class="q">∮<sub>inner, CW</sub></span> = <span class="d">∬<sub><i>D</i></sub> ( <i>Q<sub>x</sub> − P<sub>y</sub></i> ) <i>dA</i></span><br><span class="p">∮<sub>outer</sub></span> − <span class="q">∮<sub>inner, CCW</sub></span> = <span class="d">∬<sub><i>D</i></sub> curl</span></div></div></div>
+<div class="qed">∎ Multiply connected regions</div></article>
+
+<article class="part" id="p6"><span class="tag">Part 6</span><h3 style="font-size:1.8rem">The flux (normal) form</h3>
+<p>Watch the tangent <b class="p">T</b> and outward normal <b class="q">n</b> travel around the curve. The normal is the tangent rotated 90° clockwise.</p>
+<canvas id="tn" width="1400" height="760"></canvas>
+<div class="ps"><b class="n">1</b><div><p>With <i>T</i> = (<i>x′, y′</i>)/|<i>r′</i>| and <i>ds</i> = |<i>r′</i>| <i>dt</i>, the outward unit normal is <i>n</i> = (<i>y′, −x′</i>)/|<i>r′</i>|, so</p>
+<div class="eq"><span class="q"><i>n</i> <i>ds</i> = ( <i>dy</i>, −<i>dx</i> )</span></div></div></div>
+<div class="ps"><b class="n">2</b><div><p>For <b>F</b> = (<i>M</i>,<i>N</i>):</p>
+<div class="eq">∮ <b>F</b>·<b>n</b> <i>ds</i> = ∮ <span class="q"><i>M</i> <i>dy</i></span> − <span class="p"><i>N</i> <i>dx</i></span></div></div></div>
+<div class="ps"><b class="n">3</b><div><p>Apply Green with <i>P</i> = −<i>N</i> and <i>Q</i> = <i>M</i>:</p>
+<div class="eq">∮ <b>F</b>·<b>n</b> <i>ds</i> = <span class="d">∬<sub><i>D</i></sub> ( ⟦F|∂<i>M</i>|∂<i>x</i>⟧ + ⟦F|∂<i>N</i>|∂<i>y</i>⟧ ) <i>dA</i> = ∬<sub><i>D</i></sub> div <b>F</b> <i>dA</i></span></div></div></div>
+<div class="qed">∎ Flux form</div></article>
+</section>
+
+<section id="ext"><span class="tag">Corollaries</span><h2>Consequences and extensions</h2>
+<p>Once the theorem is in hand, a surprising amount follows in a line or two.</p>
+
+<article class="part"><span class="tag">Corollary 1</span><h3>Area as a boundary integral</h3>
+<p>Choose (<i>P</i>,<i>Q</i>) so that <i>Q<sub>x</sub> − P<sub>y</sub></i> = 1. Three natural choices give three formulas, all equal to the area of <i>D</i>:</p>
+<div class="eq"><span class="q">∮ <i>x dy</i></span> = <span class="p">− ∮ <i>y dx</i></span> = <span class="a">½ ∮ <i>x dy − y dx</i></span> = <span class="d">Area(<i>D</i>)</span><small>(P,Q) = (0,x), (−y,0), (−y/2, x/2)</small></div>
+<div class="ps"><b class="n">→</b><div><p>For a polygon with vertices (<i>x<sub>i</sub>, y<sub>i</sub></i>) each edge is a line segment, and the third formula collapses to the shoelace formula:</p>
+<div class="eq">Area = ½ Σ<sub><i>i</i></sub> ( <i>x<sub>i</sub> y<sub>i+1</sub> − x<sub>i+1</sub> y<sub>i</sub></i> )</div></div></div></article>
+
+<article class="part"><span class="tag">Corollary 2</span><h3>Curl is circulation density</h3>
+<p>Let <i>C<sub>r</sub></i> be the circle of radius <i>r</i> about a point <i>p</i>. Green’s theorem and the mean value theorem for integrals (the curl is continuous) give:</p>
+<div class="eq"><span class="d">curl<sub>z</sub> <b>F</b>(<i>p</i>)</span> = lim<sub><i>r</i>→0</sub> ⟦F|1|π<i>r</i>²⟧ ∮<sub><i>C<sub>r</sub></i></sub> <b>F</b>·<i>d</i><b>r</b><small>this is why the paddle wheel in the preliminaries measures curl</small></div>
+<p>The same argument on the flux form gives div <b>F</b>(<i>p</i>) = lim (1/π<i>r</i>²) ∮ <b>F</b>·<b>n</b> <i>ds</i>, a coordinate-free definition of divergence.</p></article>
+
+<article class="part"><span class="tag">Corollary 3</span><h3>Green’s identities</h3>
+<p>Apply the flux form to <b>F</b> = <i>f</i>∇<i>g</i>, where div(<i>f</i>∇<i>g</i>) = ∇<i>f</i>·∇<i>g</i> + <i>f</i>∇²<i>g</i>:</p>
+<div class="eq"><span class="d">∬<sub><i>D</i></sub> ( <i>f</i>∇²<i>g</i> + ∇<i>f</i>·∇<i>g</i> ) <i>dA</i></span> = <span class="a">∮<sub><i>C</i></sub> <i>f</i> ⟦F|∂<i>g</i>|∂<i>n</i>⟧ <i>ds</i></span><small>Green’s first identity</small></div>
+<p>Swap <i>f</i> and <i>g</i> and subtract; the symmetric gradient terms cancel:</p>
+<div class="eq"><span class="d">∬<sub><i>D</i></sub> ( <i>f</i>∇²<i>g</i> − <i>g</i>∇²<i>f</i> ) <i>dA</i></span> = <span class="a">∮<sub><i>C</i></sub> ( <i>f</i> ⟦F|∂<i>g</i>|∂<i>n</i>⟧ − <i>g</i> ⟦F|∂<i>f</i>|∂<i>n</i>⟧ ) <i>ds</i></span><small>Green’s second identity</small></div>
+<p>Consequence: a harmonic function (∇²<i>u</i> = 0) is determined inside by its boundary data, and ∮ ∂<i>u</i>/∂<i>n</i> <i>ds</i> = 0.</p></article>
+
+<article class="part"><span class="tag">Corollary 4</span><h3>Cauchy’s integral theorem</h3>
+<p>Write <i>f</i> = <i>u</i> + <i>iv</i> and <i>dz</i> = <i>dx</i> + <i>i dy</i>. Then ∮ <i>f dz</i> splits into two real line integrals, and Green turns each into an area integral:</p>
+<div class="eq"><span class="p">∮ <i>f dz</i></span> = <span class="q">∬ ( −<i>v<sub>x</sub> − u<sub>y</sub></i> ) <i>dA</i></span> + <i>i</i> <span class="d">∬ ( <i>u<sub>x</sub> − v<sub>y</sub></i> ) <i>dA</i></span></div>
+<p>If <i>f</i> is holomorphic, the Cauchy–Riemann equations <i>u<sub>x</sub></i> = <i>v<sub>y</sub></i> and <i>u<sub>y</sub></i> = −<i>v<sub>x</sub></i> kill both integrands:</p>
+<div class="eq"><span class="d">∮<sub><i>C</i></sub> <i>f</i>(<i>z</i>) <i>dz</i> = 0</span></div></article>
+
+<article class="part"><span class="tag">Corollary 5</span><h3>Path independence, potentials and winding numbers</h3>
+<p>If <i>Q<sub>x</sub> = P<sub>y</sub></i> on a simply connected domain, Green gives ∮ = 0 for every simple loop, so line integrals depend only on endpoints and <b>F</b> = ∇<i>f</i>. If the domain has a hole, the test fails exactly as in the 2π example below. For closed curves that cross themselves, each point is counted by its winding number <i>w</i>:</p>
+<div class="eq">∮<sub><i>C</i></sub> <i>P dx + Q dy</i> = <span class="d">∬ <i>w</i>(<i>x,y</i>) ( <i>Q<sub>x</sub> − P<sub>y</sub></i> ) <i>dA</i></span><small>a figure-eight has w = +1 on one lobe and −1 on the other</small></div></article>
+
+<article class="part"><span class="tag">Corollary 6</span><h3>How weak can the hypotheses be?</h3>
+<p>C¹ fields on a piecewise-C¹ region is the comfortable setting. The theorem survives much more: it holds on Lipschitz domains, for rectifiable Jordan curves, and, in the language of geometric measure theory, for sets of finite perimeter (the De Giorgi–Federer divergence theorem). What it cannot survive is a singularity inside the region, as the 2π example shows.</p></article>
+</section>
+
+<section id="examples"><span class="tag">Practice</span><h2>Worked examples</h2>
+<div class="card"><h3>Ellipse area from a boundary integral</h3>
+<p style="color:var(--mut)">Take <i>P</i> = −<i>y</i>/2, <i>Q</i> = <i>x</i>/2, so <i>Q<sub>x</sub> − P<sub>y</sub></i> = 1. Parametrize <i>x</i> = <i>a</i> cos <i>t</i>, <i>y</i> = <i>b</i> sin <i>t</i>.</p>
+<div class="eq">Area = <span class="a">½ ∮ <i>x dy − y dx</i></span> = ½ ⟦I|2π|0⟧ <i>ab</i> <i>dt</i> = <span class="d"><i>πab</i></span></div>
+<canvas id="el" width="1400" height="720"></canvas>
+<div class="ctl"><label>a <input type="range" id="ea" min="1" max="5" step=".1" value="4"></label><label>b <input type="range" id="eb" min="1" max="3.2" step=".1" value="2.4"></label><button class="b" id="er">Replay</button><b id="ev"></b></div></div>
+<div class="grid">
+<div class="card"><h3>Triangle circulation</h3><p>(0,0), (1,0), (1,1); <i>P</i> = <i>xy</i>, <i>Q</i> = <i>x</i>².</p>
+<div class="eq" style="font-size:1.5rem"><span class="d">∫₀¹∫₀ˣ <i>x</i> <i>dy dx</i> = 1/3</span><small>direct: 0 + 1 + (−2/3) = 1/3 ✓</small></div></div>
+<div class="card"><h3>Flux through a circle</h3><p><b>F</b> = (<i>x</i>,<i>y</i>), radius <i>r</i>.</p>
+<div class="eq" style="font-size:1.5rem">div <b>F</b> = 2 ⟹ <span class="d">2·<i>πr</i>² = 2<i>πr</i>²</span><small>direct: F·n = r, length 2πr ✓</small></div></div><div class="card"><h3>Astroid area</h3><p><i>x</i> = cos³<i>t</i>, <i>y</i> = sin³<i>t</i>.</p><div class="eq" style="font-size:1.4rem">½∮ <i>x dy − y dx</i> = <span class="a">(3/2) ⟦I|2π|0⟧ sin²<i>t</i> cos²<i>t</i> <i>dt</i></span> = <span class="d">3π/8</span></div></div><div class="card"><h3>Hard integral, easy curl</h3><p>∮ (e<sup><i>x</i></sup> − <i>y</i>³) <i>dx</i> + (cos <i>y</i> + <i>x</i>³) <i>dy</i> on the unit circle.</p><div class="eq" style="font-size:1.4rem">curl = 3<i>x</i>² + 3<i>y</i>² ⟹ ⟦I|2π|0⟧ ⟦I|1|0⟧ 3<i>r</i>³ <i>dr dθ</i> = <span class="d">3π/2</span></div></div></div></section>
+
+<section id="fine"><span class="tag">Care</span><h2>The fine print</h2>
+<div class="note"><b>Holes break naive use.</b> Take <b>F</b> = (−<i>y</i>, <i>x</i>)/(<i>x</i>²+<i>y</i>²). Its curl is 0 away from the origin, yet:
+<div class="eq" style="font-size:1.6rem">∮<sub>unit circle</sub> <b>F</b>·<i>d</i><b>r</b> = <span class="q">2π</span> ≠ <span class="d">∬ 0 <i>dA</i></span><small>F is not C¹ at the origin, so Green’s theorem does not apply to the disk</small></div></div>
+<div class="grid">
+<div class="card"><h3>Conservative fields</h3><p>If <i>Q<sub>x</sub></i> = <i>P<sub>y</sub></i> on a simply connected domain, every closed-loop integral vanishes, so <b>F</b> = ∇<i>f</i>.</p></div>
+<div class="card"><h3>Regularity</h3><p>C¹ and piecewise-smooth <i>C</i> suffice; sharper versions use rectifiable curves and Jordan’s theorem.</p></div><div class="card"><h3>Orientation slips</h3><p>Clockwise traversal flips the sign. Inner boundaries of holes must run clockwise.</p></div><div class="card"><h3>Singularities inside</h3><p>If <i>P</i> or <i>Q</i> blow up inside <i>D</i>, the theorem does not apply to <i>D</i>; cut the singularity out first.</p></div><div class="card"><h3>Self-crossing curves</h3><p>Weight each region by its winding number (Corollary 5) rather than assuming +1.</p></div></div></section>
+
+<section id="exercises"><span class="tag">Try it</span><h2>Exercises with solutions</h2>
+<p>Attempt each one first, then open the solution.</p>
+<details><summary>1 · Region between y = x² and y = x</summary>
+<p>Evaluate ∮<sub>C</sub> (<i>y</i> + e<sup>√x</sup>) <i>dx</i> + (2<i>x</i> + cos <i>y</i>²) <i>dy</i> for <i>C</i> counter-clockwise around the region between <i>y</i> = <i>x</i>² and <i>y</i> = <i>x</i>.</p>
+<div class="eq">curl = 2 − 1 = <span class="d">1</span> ⟹ ∮ = ∬ 1 <i>dA</i> = ⟦I|1|0⟧ ( <i>x</i> − <i>x</i>² ) <i>dx</i> = <span class="d">1/6</span></div></details>
+<details><summary>2 · Triangle area from the boundary</summary>
+<p>Use Area = ½∮ <i>x dy − y dx</i> for the triangle (0,0), (4,0), (0,3).</p>
+<div class="eq">only the slanted edge contributes: <i>x</i> = 4 − 4<i>t</i>, <i>y</i> = 3<i>t</i> gives integrand 12 <i>dt</i><br>Area = ½ · 12 = <span class="d">6</span></div></details>
+<details><summary>3 · The field with a hole</summary>
+<p>For <b>F</b> = (−<i>y</i>, <i>x</i>)/(<i>x</i>²+<i>y</i>²), find ∮<sub>C</sub> for a simple CCW loop that encloses the origin, and for one that does not.</p>
+<div class="eq">no origin inside: curl = 0 ⟹ <span class="d">0</span> &nbsp;&nbsp; origin inside: cut out a small circle (Part 5) ⟹ ∮ = ⟦I|2π|0⟧ <i>dθ</i> = <span class="q">2π</span></div></details>
+<details><summary>4 · Flux out of the unit circle</summary>
+<p>Find ∮ <b>F</b>·<b>n</b> <i>ds</i> for <b>F</b> = (<i>x</i>³, <i>y</i>³).</p>
+<div class="eq">div <b>F</b> = 3(<i>x</i>² + <i>y</i>²) ⟹ ⟦I|2π|0⟧ ⟦I|1|0⟧ 3<i>r</i>² · <i>r dr dθ</i> = <span class="d">3π/2</span></div></details></section>
+
+<section id="stokes"><span class="tag">Beyond Green · I</span><h2>Stokes’ theorem: Green on a curved surface</h2>
+<p>Take Green’s region and bend it into space. A surface <i>S</i> with boundary curve ∂<i>S</i> carries a vector field <b>F</b> = (<i>P</i>,<i>Q</i>,<i>R</i>), and circulation around the edge again equals curl accumulated across the surface.</p>
+<div class="eq" style="font-size:clamp(1.7rem,4.6vw,2.9rem)"><span class="a">∮<sub>∂<i>S</i></sub> <b>F</b>·<i>d</i><b>r</b></span><br>=<br><span class="d">∬<sub><i>S</i></sub> ( ∇×<b>F</b> )·<b>n</b> <i>dS</i></span><small>orientation by the right-hand rule: thumb along n, fingers along ∂S</small></div>
+<p>If <i>S</i> is a flat region in the <i>xy</i>-plane then <b>n</b> = <b>k</b>, (∇×<b>F</b>)·<b>k</b> = <i>Q<sub>x</sub> − P<sub>y</sub></i>, and Stokes <em>is</em> Green. The hemisphere below rotates so you can see the boundary and the upward-pointing curl together.</p>
+<canvas id="st" width="1400" height="760"></canvas>
+<div class="part"><span class="tag">Proof sketch</span>
+<div class="ps"><b class="n">1</b><div><p>Parametrize <i>S</i> by <b>r</b>(<i>u,v</i>) over a planar region <i>D</i>; then ∂<i>S</i> is the image of ∂<i>D</i> and <b>n</b> <i>dS</i> = (<b>r</b><sub>u</sub> × <b>r</b><sub>v</sub>) <i>du dv</i>.</p></div></div>
+<div class="ps"><b class="n">2</b><div><p>Pull the circulation back to the <i>uv</i>-plane, where it is an ordinary planar line integral:</p>
+<div class="eq">∮<sub>∂S</sub> <b>F</b>·<i>d</i><b>r</b> = ∮<sub>∂D</sub> <span class="p">(<b>F</b>·<b>r</b><sub>u</sub>) <i>du</i></span> + <span class="q">(<b>F</b>·<b>r</b><sub>v</sub>) <i>dv</i></span></div></div></div>
+<div class="ps"><b class="n">3</b><div><p>Apply Green’s theorem in <i>D</i> with <i>P</i> = <b>F</b>·<b>r</b><sub>u</sub> and <i>Q</i> = <b>F</b>·<b>r</b><sub>v</sub>. The second-derivative terms <b>F</b>·<b>r</b><sub>uv</sub> appear in both and cancel:</p>
+<div class="eq">= <span class="d">∬<sub>D</sub> [ ( ∂<sub>u</sub><b>F</b> )·<b>r</b><sub>v</sub> − ( ∂<sub>v</sub><b>F</b> )·<b>r</b><sub>u</sub> ] <i>du dv</i></span></div></div></div>
+<div class="ps"><b class="n">4</b><div><p>With <i>A</i> the Jacobian of <b>F</b>, the integrand is <b>r</b><sub>v</sub>ᵀ(<i>A − Aᵀ</i>)<b>r</b><sub>u</sub>. The antisymmetric part of <i>A</i> encodes the curl:</p>
+<div class="eq">( <i>A − Aᵀ</i> ) <b>w</b> = ( ∇×<b>F</b> ) × <b>w</b> ⟹ integrand = <span class="d">( ∇×<b>F</b> )·( <b>r</b><sub>u</sub> × <b>r</b><sub>v</sub> )</span></div></div></div>
+<div class="qed">∎ Stokes</div></div>
+<div class="grid"><div class="card"><h3>Curl of a gradient</h3><p>If <b>F</b> = ∇<i>f</i> then the circulation around any closed loop is 0, so ∇×∇<i>f</i> = 0.</p></div>
+<div class="card"><h3>Surface independence</h3><p>Two surfaces with the same boundary give the same flux of the curl; over a closed surface it is 0.</p></div>
+<div class="card"><h3>Faraday’s law</h3><p>∮ <b>E</b>·<i>d</i><b>r</b> = −<i>d</i>Φ<sub>B</sub>/<i>dt</i> is Stokes applied to ∇×<b>E</b> = −∂<b>B</b>/∂<i>t</i>.</p></div></div></section>
+
+<section id="gauss"><span class="tag">Beyond Green · II</span><h2>The divergence theorem: Green’s flux form in 3D</h2>
+<p>Lift the flux form one dimension. For a solid <i>V</i> with outward-oriented boundary surface ∂<i>V</i>, the total outflow equals the total expansion inside. It was found repeatedly: Lagrange (1762), Gauss (1813), Ostrogradsky (1826), Green (1828).</p>
+<div class="eq" style="font-size:clamp(1.7rem,4.6vw,2.9rem)"><span class="a">∯<sub>∂<i>V</i></sub> <b>F</b>·<b>n</b> <i>dS</i></span><br>=<br><span class="d">∭<sub><i>V</i></sub> ∇·<b>F</b> <i>dV</i></span><small>net flux out through the surface = total source strength inside</small></div>
+<canvas id="dv" width="1400" height="700"></canvas>
+<div class="part"><span class="tag">Proof sketch</span>
+<div class="ps"><b class="n">1</b><div><p>Write <b>F</b> = (<i>P</i>,<i>Q</i>,<i>R</i>). It suffices to prove ∯ <i>R</i> <b>k</b>·<b>n</b> <i>dS</i> = ∭ ∂<sub>z</sub><i>R</i> <i>dV</i> and the two analogues, then add.</p></div></div>
+<div class="ps"><b class="n">2</b><div><p>Let <i>V</i> = {(<i>x,y</i>) ∈ <i>D</i>, <i>u₁</i> ≤ <i>z</i> ≤ <i>u₂</i>}. Fubini and the FTC, exactly as in Lemma A:</p>
+<div class="eq">∭<sub>V</sub> <span class="p">⟦F|∂<i>R</i>|∂<i>z</i>⟧</span> <i>dV</i> = ∬<sub>D</sub> [ <i>R</i>(<i>x,y,u₂</i>) − <i>R</i>(<i>x,y,u₁</i>) ] <i>dA</i></div></div></div>
+<div class="ps"><b class="n">3</b><div><p>On the top surface <b>k</b>·<b>n</b> <i>dS</i> = +<i>dA</i>, on the bottom it is −<i>dA</i>, and on the vertical sides <b>k</b>·<b>n</b> = 0. So the surface integral equals the same expression.</p>
+<div class="eq"><span class="d">∯ <i>R</i> <b>k</b>·<b>n</b> <i>dS</i> = ∬<sub>D</sub> [ <i>R</i>(<i>x,y,u₂</i>) − <i>R</i>(<i>x,y,u₁</i>) ] <i>dA</i></span></div></div></div>
+<div class="ps"><b class="n">4</b><div><p>Add the three components; decompose general solids into simple ones, and interior faces cancel in pairs, just as in Part 4.</p></div></div>
+<div class="qed">∎ Divergence theorem</div></div>
+<div class="grid"><div class="card"><h3>Gauss’s law</h3><p>∯ <b>E</b>·<b>n</b> <i>dS</i> = <i>Q</i>/ε₀ is the divergence theorem applied to ∇·<b>E</b> = ρ/ε₀.</p></div>
+<div class="card"><h3>Continuity equation</h3><p>Mass conservation, ∂ρ/∂<i>t</i> + ∇·(ρ<b>v</b>) = 0, follows by letting the volume shrink to a point.</p></div>
+<div class="card"><h3>3D Green identities</h3><p>Same derivation as Corollary 3 with <b>F</b> = <i>f</i>∇<i>g</i> on a solid.</p></div></div></section>
+
+<section id="general"><span class="tag">The unification</span><h2>The generalized Stokes theorem</h2>
+<p>All the results above are one statement. For an oriented <i>n</i>-dimensional region Ω with boundary ∂Ω and a smooth (<i>n</i>−1)-form ω:</p>
+<div class="eq" style="font-size:clamp(1.9rem,5vw,3.2rem)"><span class="a">∫<sub>∂Ω</sub> ω</span> = <span class="d">∫<sub>Ω</sub> <i>d</i>ω</span><small>integrate the derivative over the inside, or the form over the boundary</small></div>
+<p>The animation shows the lowest rung, the fundamental theorem of calculus: the area accumulating under <i>f′</i> equals the change of <i>f</i> across the endpoints, which is “the integral of ω = <i>f</i> over the two-point boundary.”</p>
+<canvas id="ft" width="1400" height="800"></canvas>
+<div class="grid">
+<div class="card"><h3>Dimension 1</h3><div class="eq" style="font-size:1.3rem;padding:12px">⟦I|<i>b</i>|<i>a</i>⟧ <i>f′ dx</i> = <i>f</i>(<i>b</i>) − <i>f</i>(<i>a</i>)</div><p>The FTC.</p></div>
+<div class="card"><h3>Plane</h3><div class="eq" style="font-size:1.3rem;padding:12px">∮ <i>P dx + Q dy</i> = ∬ ( <i>Q<sub>x</sub> − P<sub>y</sub></i> ) <i>dA</i></div><p>Green: ω = <i>P dx + Q dy</i>, <i>d</i>ω = ( <i>Q<sub>x</sub> − P<sub>y</sub></i> ) <i>dx∧dy</i>.</p></div>
+<div class="card"><h3>Surface in space</h3><div class="eq" style="font-size:1.3rem;padding:12px">∮ <b>F</b>·<i>d</i><b>r</b> = ∬ ( ∇×<b>F</b> )·<b>n</b> <i>dS</i></div><p>Stokes: a 1-form on a 2-surface.</p></div>
+<div class="card"><h3>Solid in space</h3><div class="eq" style="font-size:1.3rem;padding:12px">∯ <b>F</b>·<b>n</b> <i>dS</i> = ∭ ∇·<b>F</b> <i>dV</i></div><p>Gauss: a 2-form on a 3-solid.</p></div></div>
+<article class="part"><span class="tag">Why it works</span>
+<div class="ps"><b class="n">1</b><div><p>On the unit cube, take ω = <i>f dx₂∧…∧dx<sub>n</sub></i>. Then <i>d</i>ω = ∂₁<i>f</i> <i>dx₁∧…∧dx<sub>n</sub></i>, and by Fubini and the FTC in <i>x₁</i>:</p>
+<div class="eq">∫<sub>cube</sub> <i>d</i>ω = ∫ [ <i>f</i>(1,…) − <i>f</i>(0,…) ] <i>dx₂…dx<sub>n</sub></i></div></div></div>
+<div class="ps"><b class="n">2</b><div><p>These are the two opposite faces, with opposite induced orientations; all other faces contribute 0 because <i>dx₂∧…∧dx<sub>n</sub></i> vanishes on them. That is Lemma A in <i>n</i> dimensions.</p></div></div>
+<div class="ps"><b class="n">3</b><div><p>Charts, pullback (which commutes with <i>d</i>) and a partition of unity carry the cube case to any manifold; shared faces cancel as in Parts 4 and 5.</p></div></div>
+<div class="ps"><b class="n">4</b><div><p>Applying the theorem twice gives the deepest consequence: <i>d</i>² = 0, which is the same fact as ∂∂ = ∅, the boundary of a boundary is empty:</p>
+<div class="eq"><span class="d"><i>d</i>(<i>d</i>ω) = 0</span> ⟺ <span class="a">∇×(∇<i>f</i>) = 0 &nbsp; and &nbsp; ∇·(∇×<b>F</b>) = 0</span></div></div></div></article></section>
+
+<section id="conclusion"><span class="tag">Conclusion</span><h2>What we have shown</h2>
+<p class="lead">Green’s theorem says that the circulation of a field around a closed curve equals the total curl enclosed. We proved it from two ingredients: Fubini’s theorem to slice the region, and the fundamental theorem of calculus to evaluate each slice. Two lemmas (one per coordinate direction) combine on simple regions; cutting extends the result to general regions and regions with holes; a 90° rotation of the field gives the flux form.</p>
+<div class="grid">
+<div class="card"><h3>1 · The mechanism</h3><p>Slice, integrate, and the endpoints of each slice are exactly the boundary values.</p></div>
+<div class="card"><h3>2 · Orientation matters</h3><p>Counter-clockwise boundary, outward normal, right-hand rule: one sign convention throughout.</p></div>
+<div class="card"><h3>3 · Cancellation scales up</h3><p>Interior edges cancel in pairs, which handles arbitrary regions and holes.</p></div>
+<div class="card"><h3>4 · One theorem, many names</h3><p>Green, Stokes, Gauss, and the FTC are the same statement in different dimensions.</p></div></div>
+<div class="eq" style="font-size:clamp(1.9rem,5vw,3.2rem)"><span class="a">∮<sub>∂<i>D</i></sub> ω</span> = <span class="d">∬<sub><i>D</i></sub> <i>d</i>ω</span><small>the whole page in one line</small></div>
+<h3>Where to go next</h3>
+<div class="grid">
+<div class="card"><h3>Sharper hypotheses</h3><p>Sets of finite perimeter and the De Giorgi–Federer theorem for rough boundaries.</p></div>
+<div class="card"><h3>Holes and topology</h3><p>De Rham cohomology explains exactly which curl-free fields fail to be gradients.</p></div>
+<div class="card"><h3>Discrete versions</h3><p>On graphs and meshes the theorem becomes exact bookkeeping, the basis of discrete exterior calculus.</p></div>
+<div class="card"><h3>Complex analysis</h3><p>Cauchy–Pompeiu extends Corollary 4 to non-holomorphic functions via ∂f/∂z̄.</p></div></div>
+<div class="note">Attributions and dates in this page follow common textbook accounts; consult the primary sources before quoting them.</div>
+<h3>References</h3>
+<ol class="refs"><li>G. Green, <em>An Essay on the Application of Mathematical Analysis to the Theories of Electricity and Magnetism</em>, Nottingham, 1828.</li>
+<li>A.-L. Cauchy, “Sur les intégrales qui s’étendent à tous les points d’une courbe fermée,” <em>Comptes Rendus</em> 23, 1846.</li>
+<li>B. Riemann, <em>Grundlagen für eine allgemeine Theorie der Functionen einer veränderlichen complexen Grösse</em>, 1851.</li>
+<li>T. M. Apostol, <em>Calculus, Vol. II</em>, Wiley.</li>
+<li>M. Spivak, <em>Calculus on Manifolds</em>, W. A. Benjamin, 1965.</li>
+<li>J. R. Munkres, <em>Analysis on Manifolds</em>, Addison-Wesley, 1991.</li>
+<li>J. H. Hubbard and B. B. Hubbard, <em>Vector Calculus, Linear Algebra, and Differential Forms</em>.</li>
+<li>J. E. Marsden and A. J. Tromba, <em>Vector Calculus</em>, W. H. Freeman.</li></ol></section>
+<footer>Thank you for reading. ∮</footer>
+<div id="fab"><button id="fabp" title="Auto-scroll">▶</button><button id="fabx" title="Speed">1×</button><button id="fabt" title="Back to top">↑</button></div>
+
+<script>
+const $=id=>document.getElementById(id),root=document.documentElement,R=[],AUTO={},LU={};
+const col=n=>getComputedStyle(root).getPropertyValue(n).trim();
+const rg=(v,a)=>{const h=col(v).replace('#',''),n=parseInt(h,16);return 'rgba('+(n>>16)+','+(n>>8&255)+','+(n&255)+','+a+')'};function init(id){const c=$(id),x=c.getContext('2d'),k=c.width/700;x.scale(k,k);return{x,w:700,h:c.height/k}}
+document.querySelectorAll('.eq').forEach(e=>e.innerHTML=e.innerHTML.replace(/⟦(I|F)\|([^|⟧]*)\|([^|⟧]*)⟧/g,(m,t,a,b)=>t=='I'?'<span class="il">∫<span class="u">'+a+'</span><span class="l">'+b+'</span></span>':'<span class="fr"><span>'+a+'</span><span>'+b+'</span></span>'));
+function arr(x,a,b,c,lw,al,sh){const dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy),u=[dx/L,dy/L],s=[a[0]+u[0]*L*.1,a[1]+u[1]*L*.1],e=[b[0]-u[0]*L*.1,b[1]-u[1]*L*.1];
+x.globalAlpha=al;x.strokeStyle=x.fillStyle=c;x.lineWidth=lw;x.beginPath();x.moveTo(s[0],s[1]);x.lineTo(e[0],e[1]);x.stroke();const hs=lw*2.2+2;
+x.beginPath();x.moveTo(e[0],e[1]);x.lineTo(e[0]-u[0]*hs-u[1]*hs*.6,e[1]-u[1]*hs+u[0]*hs*.6);x.lineTo(e[0]-u[0]*hs+u[1]*hs*.6,e[1]-u[1]*hs-u[0]*hs*.6);x.fill();x.globalAlpha=1}
+// theme, nav, progress
+$('tg').onclick=()=>{const d=root.dataset.theme==='dark'||(!root.dataset.theme&&matchMedia('(prefers-color-scheme:dark)').matches);root.dataset.theme=d?'light':'dark';setTimeout(()=>R.forEach(f=>f()),30)};
+addEventListener('scroll',()=>{$('bar').style.width=100*scrollY/(document.body.scrollHeight-innerHeight)+'%'});
+const links=[...document.querySelectorAll('nav a')];
+document.querySelectorAll('header[id],section[id]').forEach(s=>new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)links.forEach(a=>a.classList.toggle('on',a.getAttribute('href')=='#'+s.id))}),{rootMargin:'-40% 0px -55% 0px'}).observe(s));
+// pop-out on scroll
+document.querySelectorAll('.grid').forEach(g=>[...g.children].forEach((c,i)=>{c.classList.add('rv');c.style.setProperty('--d',i*.12+'s')}));
+document.querySelectorAll('section>h2,section>p,section>.tag,section>canvas,section>.card,section>.note,section>.eq,.part>*,.ctl,.pills,section>details,section>ol,section>.chips').forEach(e=>{if(!e.parentElement.closest('.rv'))e.classList.add('rv')});
+const rv=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');rv.unobserve(e.target)}}),{threshold:.1});
+document.querySelectorAll('.rv').forEach(e=>rv.observe(e));
+// auto-scroll
+let auto=0,spd=1,acc=0,last=0;const SP=[50,110,200];
+function tick(t){if(!auto)return;acc+=SP[spd]*Math.min((t-last)/1000,.1);last=t;const d=Math.floor(acc);if(d){acc-=d;scrollBy({top:d,behavior:'instant'})}
+if(scrollY+innerHeight>=document.body.scrollHeight-2)setAuto(0);else requestAnimationFrame(tick)}
+function setAuto(v){auto=v;$('fabp').textContent=v?'⏸':'▶';$('autoh').textContent=v?'⏸ Pause auto-scroll':'▶ Auto-scroll the whole page';if(v){last=performance.now();requestAnimationFrame(tick)}}
+$('fabp').onclick=()=>setAuto(!auto);$('autoh').onclick=()=>setAuto(!auto);
+$('fabx').onclick=()=>{spd=(spd+1)%3;$('fabx').textContent=[1,2,4][spd]+'×'};
+$('fabt').onclick=()=>{setAuto(0);scrollTo({top:0,behavior:'smooth'})};
+$('begin').onclick=()=>$('statement').scrollIntoView({behavior:'smooth'});
+['wheel','touchstart','keydown'].forEach(e=>addEventListener(e,()=>{if(auto)setAuto(0)},{passive:true}));
+// hero field
+{const c=$('hero'),x=c.getContext('2d');let W,H,ps=[];
+function rs(){W=c.width=c.clientWidth;H=c.height=c.clientHeight;ps=Array.from({length:110},()=>({x:Math.random()*W,y:Math.random()*H,t:[]}))}
+rs();addEventListener('resize',rs);
+(function f(){x.clearRect(0,0,W,H);const cx=W/2,cy=H/2,cc=[col('--c1'),col('--c2'),col('--c3'),col('--c4')];
+ps.forEach((p,i)=>{const dx=p.x-cx,dy=p.y-cy,r=Math.hypot(dx,dy)+1;p.x+=-dy/r*1.8+Math.sin(p.y/50)*.5;p.y+=dx/r*1.8+Math.cos(p.x/50)*.5;
+p.t.push([p.x,p.y]);if(p.t.length>18)p.t.shift();if(p.x<-20||p.x>W+20||p.y<-20||p.y>H+20){p.x=Math.random()*W;p.y=Math.random()*H;p.t=[]}
+x.strokeStyle=cc[i%4];x.lineWidth=2;x.beginPath();p.t.forEach((q,k)=>{x.globalAlpha=k/p.t.length*.9;k?x.lineTo(q[0],q[1]):x.moveTo(q[0],q[1])});x.stroke()});x.globalAlpha=1;requestAnimationFrame(f)})()}
+// mesh
+{const{x,w,h}=init('grid');let k=0,tg=0;
+$('cx').onclick=()=>{tg=tg?0:1;$('cx').textContent=tg?'Restore interior edges':'Cancel interior edges'};AUTO.grid=p=>{const q=p<.45?p/.45:p<.75?1:1-(p-.75)/.25;$('n').value=3+Math.round(11*q);tg=p>.5&&p<.8?1:0;$('cx').textContent=tg?'Restore interior edges':'Cancel interior edges'};
+(function f(){const n=+$('n').value,Rr=170,s=2*Rr/n,ox=w/2-Rr,oy=h/2-Rr,set=new Set(),inn=(i,j)=>set.has(i+','+j);
+for(let i=0;i<n;i++)for(let j=0;j<n;j++)if(Math.hypot(ox+(i+.5)*s-w/2,oy+(j+.5)*s-h/2)<Rr*.98)set.add(i+','+j);
+k+=(tg-k)*.08;x.clearRect(0,0,w,h);
+set.forEach(key=>{const[i,j]=key.split(',').map(Number),x0=ox+i*s,y0=oy+j*s,x1=x0+s,y1=y0+s;
+x.globalAlpha=.1;x.fillStyle=col('--c3');x.fillRect(x0,y0,s,s);
+[[[x0,y1],[x1,y1],i,j+1],[[x1,y1],[x1,y0],i+1,j],[[x1,y0],[x0,y0],i,j-1],[[x0,y0],[x0,y1],i-1,j]].forEach(([a,b,ni,nj])=>inn(ni,nj)?arr(x,a,b,col('--c2'),1.4,1-k):arr(x,a,b,col('--c1'),3,1))});
+$('gl').textContent=set.size+' cells · '+(tg?'only the boundary survives':'each interior edge appears twice, opposite signs');requestAnimationFrame(f)})()}
+// orientation / normal canvases
+function tn(id,mode){const{x,w,h}=init(id);(function f(){const th=performance.now()/1500,a=210,b=120,cx=w/2,cy=h/2;x.clearRect(0,0,w,h);
+x.fillStyle=col('--c3');x.globalAlpha=.12;x.beginPath();x.ellipse(cx,cy,a,b,0,0,7);x.fill();x.globalAlpha=1;x.strokeStyle=col('--ink');x.lineWidth=2.5;x.stroke();
+const px=cx+a*Math.cos(th),py=cy-b*Math.sin(th);let tx=-a*Math.sin(th),ty=-b*Math.cos(th),tl=Math.hypot(tx,ty);tx/=tl;ty/=tl;
+let nx=b*Math.cos(th),ny=-a*Math.sin(th),nl=Math.hypot(nx,ny);nx/=nl;ny/=nl;
+if(mode=='or'){nx=-nx;ny=-ny}
+arr(x,[px,py],[px+tx*80,py+ty*80],col('--c1'),4,1);arr(x,[px,py],[px+nx*80,py+ny*80],mode=='or'?col('--c3'):col('--c2'),4,1);
+x.fillStyle=col('--c4');x.beginPath();x.arc(px,py,8,0,7);x.fill();x.fillStyle=col('--ink');x.font='italic 20px "STIX Two Text",serif';
+x.fillText(mode=='or'?'T (direction of travel)':'T = (x′, y′)/ds',px+tx*80+8,py+ty*80);x.fillText(mode=='or'?'interior is on the left':'n = (y′, −x′)/ds',px+nx*80+8,py+ny*80);
+requestAnimationFrame(f)})()}
+tn('or','or');tn('tn','n');
+// slice demos
+function slice(id,mode){const{x,w,h}=init(id),v=mode=='v',s0=v?80:70,s1=v?620:330,sl=$(id+'s'),pl=$(id+'p'),cap=$(id+'c');
+const A=s=>v?130+35*Math.cos((s-80)/110):150+50*Math.sin((s-70)/50),B=s=>v?290-40*Math.sin((s-80)/90):520-45*Math.cos((s-70)/60);
+const pt=(s,u)=>v?[s,u]:[u,s];
+function path(sm,close){x.beginPath();for(let q=s0;q<=sm;q+=3){const p=pt(q,A(q));q==s0?x.moveTo(p[0],p[1]):x.lineTo(p[0],p[1])}for(let q=sm;q>=s0;q-=3){const p=pt(q,B(q));x.lineTo(p[0],p[1])}x.closePath()}
+function draw(){const t=+sl.value,s=s0+(s1-s0)*t,cA=v?col('--c4'):col('--c2'),cB=v?col('--c1'):col('--c2');x.clearRect(0,0,w,h);
+path(s1);x.fillStyle=col('--c3');x.globalAlpha=.1;x.fill();x.globalAlpha=1;
+if(t>0){path(s);x.globalAlpha=.3;x.fill();x.globalAlpha=1}
+x.lineWidth=4;[[A,cA],[B,cB]].forEach(([F,c])=>{x.strokeStyle=c;x.beginPath();for(let q=s0;q<=s1;q+=3){const p=pt(q,F(q));q==s0?x.moveTo(p[0],p[1]):x.lineTo(p[0],p[1])}x.stroke()});
+x.setLineDash([6,6]);x.strokeStyle=col('--mut');x.lineWidth=2;[s0,s1].forEach(q=>{const a=pt(q,A(q)),b=pt(q,B(q));x.beginPath();x.moveTo(a[0],a[1]);x.lineTo(b[0],b[1]);x.stroke()});x.setLineDash([]);
+const m=(s0+s1)/2,dA=v?-1:1,dB=-dA;[[A,dA,cA],[B,dB,cB]].forEach(([F,d,c])=>arr(x,pt(m,F(m)),pt(m+d*30,F(m+d*30)),c,4,1));
+const a=pt(s,A(s)),b=pt(s,B(s));x.strokeStyle=col('--ink');x.lineWidth=3;x.beginPath();x.moveTo(a[0],a[1]);x.lineTo(b[0],b[1]);x.stroke();
+x.fillStyle=cA;x.beginPath();x.arc(a[0],a[1],8,0,7);x.fill();x.fillStyle=cB;x.beginPath();x.arc(b[0],b[1],8,0,7);x.fill();
+x.fillStyle=col('--ink');x.font='italic 19px "STIX Two Text",serif';
+if(v){x.fillText('P(x, g₂)',a[0]-26,a[1]-14);x.fillText('P(x, g₁)',b[0]-26,b[1]+28);x.fillText('C₃ (←)',m-20,A(m)-20);x.fillText('C₁ (→)',m-20,B(m)+34);x.fillText('dx = 0',s0-4,A(s0)+50)}
+else{x.fillText('Q(h₁, y)',a[0]-80,a[1]+6);x.fillText('Q(h₂, y)',b[0]+14,b[1]+6);x.fillText('C₄ (↓)',A(m)+14,m);x.fillText('C₂ (↑)',B(m)-70,m);x.fillText('dy = 0',w/2-30,s0-8)}
+cap.textContent=Math.round(t*100)+'% swept — this strip contributes '+(v?'P(top) − P(bottom)':'Q(right) − Q(left)')}
+let run=0;sl.oninput=draw;pl.onclick=()=>{run=!run;if(run){if(+sl.value>=.99)sl.value=0;(function f(){if(!run)return;sl.value=Math.min(1,+sl.value+.004);draw();if(+sl.value>=1)run=0;else requestAnimationFrame(f)})()}};AUTO[id]=p=>{sl.value=Math.min(1,p/.85);draw()};R.push(draw);draw()}
+slice('sA','v');slice('sB','h');
+// numeric check
+{const FD=[{n:'P = −y, Q = x',P:(x,y)=>-y,Q:(x,y)=>x,c:(x,y)=>2,s:'2'},{n:'P = xy, Q = x²',P:(x,y)=>x*y,Q:(x,y)=>x*x,c:(x,y)=>x,s:'x'},
+{n:'P = sin y, Q = x²y',P:(x,y)=>Math.sin(y),Q:(x,y)=>x*x*y,c:(x,y)=>2*x*y-Math.cos(y),s:'2xy − cos y'},{n:'P = y², Q = x',P:(x,y)=>y*y,Q:(x,y)=>x,c:(x,y)=>1-2*y,s:'1 − 2y'}];
+const{x,w,h}=init('vc'),fs=$('fsel'),va=$('va'),vb=$('vb');FD.forEach((f,i)=>fs.add(new Option(f.n,i)));
+function vd(){const a=+va.value,b=+vb.value,F=FD[fs.value],T=Math.PI*2;let L=0,S=0,N=4000;
+for(let i=0;i<N;i++){const t=(i+.5)/N*T,X=a*Math.cos(t),Y=b*Math.sin(t);L+=(F.P(X,Y)*(-a*Math.sin(t))+F.Q(X,Y)*b*Math.cos(t))*T/N}
+for(let ir=0;ir<300;ir++){const r=(ir+.5)/300;for(let it=0;it<360;it++){const th=(it+.5)/360*T;S+=F.c(a*r*Math.cos(th),b*r*Math.sin(th))*a*b*r/300*T/360}}
+x.clearRect(0,0,w,h);const sc=65,cx=w/2,cy=h/2;let m=1e-9;
+for(let px=cx-a*sc;px<=cx+a*sc;px+=8)for(let py=cy-b*sc;py<=cy+b*sc;py+=8){const X=(px-cx)/sc,Y=(cy-py)/sc;if(X*X/(a*a)+Y*Y/(b*b)<=1)m=Math.max(m,Math.abs(F.c(X,Y)))}
+for(let px=cx-a*sc;px<=cx+a*sc;px+=8)for(let py=cy-b*sc;py<=cy+b*sc;py+=8){const X=(px-cx)/sc,Y=(cy-py)/sc;if(X*X/(a*a)+Y*Y/(b*b)<=1){const v=F.c(X,Y);x.fillStyle=rg(v>0?'--c2':'--c1',Math.min(.8,Math.abs(v)/m*.8));x.fillRect(px,py,8,8)}}
+x.strokeStyle=col('--c4');x.lineWidth=4;x.beginPath();x.ellipse(cx,cy,a*sc,b*sc,0,0,7);x.stroke();arr(x,[cx+a*sc,cy+4],[cx+a*sc-4,cy-30],col('--c4'),4,1);
+$('vf').innerHTML='curl = <i>Q<sub>x</sub> − P<sub>y</sub></i> = <span class="d">'+F.s+'</span>';
+$('vo').innerHTML='<span class="a">∮ = '+L.toFixed(4)+'</span> &nbsp; <span class="d">∬ = '+S.toFixed(4)+'</span> &nbsp; Δ = '+Math.abs(L-S).toExponential(1)}
+[fs,va,vb].forEach(e=>e.oninput=vd);AUTO.vc=p=>{fs.value=Math.floor(p*4)%4;va.value=(2.4+1.2*Math.sin(p*Math.PI*8)).toFixed(1);vb.value=(1.7+.6*Math.cos(p*Math.PI*8)).toFixed(1);vd()};R.push(vd);vd()}
+// decomposition
+{const{x,w,h}=init('dc');let k=0,tg=0;$('dcx').onclick=()=>{tg=tg?0:1;$('dcx').textContent=tg?'Restore shared edges':'Cancel shared edges'};AUTO.dc=p=>{$('dsp').value=p<.3?p/.3:p<.5?1:p<.8?1-(p-.5)/.3:0;tg=p>.55&&p<.95?1:0;$('dcx').textContent=tg?'Restore shared edges':'Cancel shared edges'};
+const Rs=[[0,0,1,1],[1,0,3,1],[0,1,1,2],[0,2,1,3],[0,2,1,3].map((v,i)=>[1,2,3,3][i])],U=90,E=[],key=(a,b)=>a+'>'+b;
+const ed=r=>{const[a,b,c,d]=r;return[[[a,d],[c,d]],[[c,d],[c,b]],[[c,b],[a,b]],[[a,b],[a,d]]]};
+Rs.forEach(r=>ed(r).forEach(e=>E.push(key(e[0],e[1]))));
+(function f(){const sp=+$('dsp').value;k+=(tg-k)*.08;x.clearRect(0,0,w,h);
+Rs.forEach((r,i)=>{const cxr=(r[0]+r[2])/2-1.5,cyr=(r[1]+r[3])/2-1.5,ox=w/2+cxr*U*sp*.4-1.5*U,oy=h/2+cyr*U*sp*.4-1.5*U,mx=(r[0]+r[2])/2,my=(r[1]+r[3])/2;
+x.globalAlpha=.12;x.fillStyle=col('--c3');x.fillRect(ox+r[0]*U,oy+r[1]*U,(r[2]-r[0])*U,(r[3]-r[1])*U);x.globalAlpha=1;
+ed(r).forEach(e=>{const inn=E.includes(key(e[1],e[0])),P=q=>[ox+q[0]*U+(mx-q[0])*U*.07,oy+q[1]*U+(my-q[1])*U*.07];
+inn?arr(x,P(e[0]),P(e[1]),col('--c2'),2,1-k):arr(x,P(e[0]),P(e[1]),col('--c1'),4,1)})});requestAnimationFrame(f)})()}
+// annulus
+{const{x,w,h}=init('ac'),cx=w/2,cy=h/2,Ro=150,Ri=65,P=(r,t)=>[cx+r*Math.cos(t),cy-r*Math.sin(t)];
+function dr(){const g=+$('ag').value,T=Math.PI*2,o=[],i=[];for(let t=g;t<=T-g;t+=.04)o.push(P(Ro,t));for(let t=T-g;t>=g;t-=.04)i.push(P(Ri,t));
+x.clearRect(0,0,w,h);x.beginPath();[...o,P(Ri,T-g),...i,P(Ro,g)].forEach((p,k)=>k?x.lineTo(p[0],p[1]):x.moveTo(p[0],p[1]));x.closePath();x.fillStyle=col('--c3');x.globalAlpha=.15;x.fill();x.globalAlpha=1;
+const sg=(pts,c)=>{x.strokeStyle=c;x.lineWidth=4;x.beginPath();pts.forEach((p,k)=>k?x.lineTo(p[0],p[1]):x.moveTo(p[0],p[1]));x.stroke()};sg(o,col('--c1'));sg(i,col('--c2'));
+sg([P(Ro,T-g),P(Ri,T-g)],col('--c4'));sg([P(Ri,g),P(Ro,g)],col('--c4'));
+const m=o[Math.floor(o.length/2)],m2=o[Math.floor(o.length/2)+2];arr(x,m,m2,col('--c1'),4,1);const n=i[Math.floor(i.length/2)],n2=i[Math.floor(i.length/2)+2];arr(x,n,n2,col('--c2'),4,1);
+x.fillStyle=col('--ink');x.font='italic 19px "STIX Two Text",serif';x.fillText('outer: counter-clockwise',cx-Ro-10,cy-Ro-14);x.fillText('inner: clockwise',cx-45,cy+8);x.fillText('bridge ×2 → cancels',cx+Ri+10,cy+34)}
+$('ag').oninput=dr;AUTO.ac=p=>{$('ag').value=p<.7?.7*(1-p/.7):p<.88?0:(p-.88)/.12*.7;dr()};R.push(dr);dr()}
+// ellipse area
+{const{x,w,h}=init('el');let t0=performance.now();$('er').onclick=()=>t0=performance.now();
+(function f(){const a=+$('ea').value,b=+$('eb').value,sc=62,cx=w/2,cy=h/2,T=Math.min(Math.PI*2,((performance.now()-t0)%4500)/2800*Math.PI*2);
+x.clearRect(0,0,w,h);x.strokeStyle=col('--line');x.lineWidth=1;x.beginPath();x.moveTo(0,cy);x.lineTo(w,cy);x.moveTo(cx,0);x.lineTo(cx,h);x.stroke();
+x.beginPath();x.moveTo(cx,cy);for(let t=0;t<=T;t+=.03)x.lineTo(cx+a*sc*Math.cos(t),cy-b*sc*Math.sin(t));x.lineTo(cx+a*sc*Math.cos(T),cy-b*sc*Math.sin(T));x.closePath();x.fillStyle=col('--c2');x.globalAlpha=.3;x.fill();x.globalAlpha=1;
+x.strokeStyle=col('--c1');x.lineWidth=3;x.beginPath();x.ellipse(cx,cy,a*sc,b*sc,0,0,7);x.stroke();x.fillStyle=col('--c4');x.beginPath();x.arc(cx+a*sc*Math.cos(T),cy-b*sc*Math.sin(T),7,0,7);x.fill();
+$('ev').textContent='Swept ½ab·t = '+(.5*a*b*T).toFixed(2)+'   |   πab = '+(Math.PI*a*b).toFixed(2);requestAnimationFrame(f)})()}
+// ---- additions ----
+function seen(id){const o={v:false,t0:0};new IntersectionObserver(es=>es.forEach(e=>{o.v=e.isIntersecting;if(o.v)o.t0=performance.now()}),{threshold:.15}).observe($(id));return o}
+// floating math background
+{const c=document.createElement('canvas');c.id='bgc';document.body.prepend(c);const x=c.getContext('2d'),G='∮∬∂∇πΣ∫√∞θΔ×'.split('');let W,H,it=[];
+function rs(){W=c.width=innerWidth;H=c.height=innerHeight;it=Array.from({length:Math.min(40,Math.max(16,Math.round(W*H/36000)))},(_,i)=>({k:i%5,x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,r:Math.random()*6,vr:(Math.random()-.5)*.004,s:28+Math.random()*52,c:i%4,g:G[i%G.length]}))}
+rs();addEventListener('resize',rs);
+(function f(){x.clearRect(0,0,W,H);const cc=[col('--c1'),col('--c2'),col('--c3'),col('--c4')];x.lineWidth=2;
+it.forEach(o=>{o.x+=o.vx;o.y+=o.vy;o.r+=o.vr;if(o.x<-90)o.x=W+90;if(o.x>W+90)o.x=-90;if(o.y<-90)o.y=H+90;if(o.y>H+90)o.y=-90;
+x.save();x.translate(o.x,o.y);x.rotate(o.r);x.globalAlpha=.2;x.strokeStyle=x.fillStyle=cc[o.c];const s=o.s;
+if(o.k==0){x.font='italic '+s*1.4+'px "STIX Two Text",serif';x.textAlign='center';x.fillText(o.g,0,s*.4)}
+else if(o.k==1){x.beginPath();x.arc(0,0,s*.6,0,7);x.moveTo(0,0);x.lineTo(s*.6,0);x.stroke()}
+else if(o.k==2){x.beginPath();x.moveTo(-s*.6,s*.4);x.lineTo(s*.6,s*.4);x.lineTo(0,-s*.6);x.closePath();x.stroke()}
+else if(o.k==3){x.beginPath();for(let t=-s;t<=s;t+=4){const yy=Math.sin(t/s*6)*s*.25;t==-s?x.moveTo(t,yy):x.lineTo(t,yy)}x.stroke()}
+else{for(let i=-1;i<=1;i++){x.beginPath();x.moveTo(-s*.5,i*s*.3);x.lineTo(s*.5,i*s*.3);x.lineTo(s*.35,i*s*.3-6);x.moveTo(s*.5,i*s*.3);x.lineTo(s*.35,i*s*.3+6);x.stroke()}}
+x.restore()});requestAnimationFrame(f)})()}
+// paddle wheel + dust ring
+{const{x,w,h}=init('pw'),s=seen('pw'),FT=[['Rotation   F = (−y, x)',(X,Y)=>[-Y,X],2,0],['Shear   F = (y, 0)',(X,Y)=>[Y,0],-1,0],['Source   F = (x, y)',(X,Y)=>[X,Y],0,2],['Strain   F = (x, −y)',(X,Y)=>[X,-Y],0,0]];let ang=0,last=0;
+(function f(now){if(!s.v){last=now;return requestAnimationFrame(f)}const dt=Math.min(.05,(now-last)/1000);last=now;const T=((now-s.t0)/1000)%16,i=Math.floor(T/4),ph=(T%4)/4,F=FT[i][1],cu=FT[i][2],dv=FT[i][3];
+x.clearRect(0,0,w,h);
+for(let gx=-5;gx<=5;gx++)for(let gy=-2;gy<=2;gy++){const X=gx*.85,Y=gy*.85,v=F(X,Y),L=Math.hypot(v[0],v[1]);if(L>.05){const m=Math.min(34,10+L*12)/L,px=w/2+X*70,py=h/2-Y*70;arr(x,[px,py],[px+v[0]*m,py-v[1]*m],col('--mut'),1.6,.55)}}
+const wx=w*.25,wy=h/2,rx=w*.75;ang-=cu/2*dt*2.2;
+x.strokeStyle=x.fillStyle=col('--c2');x.lineWidth=5;for(let b=0;b<4;b++){const a=ang+b*Math.PI/2;x.beginPath();x.moveTo(wx,wy);x.lineTo(wx+Math.cos(a)*46,wy+Math.sin(a)*46);x.stroke();x.fillRect(wx+Math.cos(a)*46-6,wy+Math.sin(a)*46-6,12,12)}
+x.fillStyle=col('--ink');x.beginPath();x.arc(wx,wy,6,0,7);x.fill();
+for(let k=0;k<28;k++){const a=k/28*Math.PI*2,u=[Math.cos(a),Math.sin(a)],v=F(u[0],u[1]);x.fillStyle=k%2?col('--c3'):col('--c4');x.beginPath();x.arc(rx+(u[0]+v[0]*ph*.6)*52,h/2-(u[1]+v[1]*ph*.6)*52,4.5,0,7);x.fill()}
+x.strokeStyle=col('--mut');x.lineWidth=1;x.setLineDash([5,5]);x.beginPath();x.arc(rx,h/2,52,0,7);x.stroke();x.setLineDash([]);
+x.fillStyle=col('--ink');x.font='italic 19px "STIX Two Text",serif';x.textAlign='center';x.fillText('paddle wheel: spin ∝ curl',wx,wy+110);x.fillText('ring of dust: area change ∝ div',rx,h/2+110);x.textAlign='left';
+$('pwc').textContent=FT[i][0]+'   →   curl = '+cu+',  div = '+dv;requestAnimationFrame(f)})()}
+// Stokes hemisphere
+{const{x,w,h}=init('st'),s=seen('st'),S=150,P=(X,Y,Z,a)=>{const u=X*Math.cos(a)-Y*Math.sin(a),v=X*Math.sin(a)+Y*Math.cos(a);return[w/2+u*S,h/2+70-Z*S*.95-v*S*.32]};
+(function f(now){if(!s.v)return requestAnimationFrame(f);const a=now/5000,pl=.5+.5*Math.sin(now/500);x.clearRect(0,0,w,h);
+const pl_=pts=>{x.beginPath();pts.forEach((p,i)=>i?x.lineTo(p[0],p[1]):x.moveTo(p[0],p[1]));x.stroke()};
+x.lineWidth=1.3;x.strokeStyle=col('--c3');x.globalAlpha=.55;
+for(let k=0;k<12;k++){const b=k*Math.PI/6,pts=[];for(let t=0;t<=1;t+=.05)pts.push(P(Math.sin(t*Math.PI/2)*Math.cos(b),Math.sin(t*Math.PI/2)*Math.sin(b),Math.cos(t*Math.PI/2),a));pl_(pts)}
+for(let j=1;j<5;j++){const al=j*Math.PI/10,pts=[];for(let b=0;b<=6.29;b+=.1)pts.push(P(Math.sin(al)*Math.cos(b),Math.sin(al)*Math.sin(b),Math.cos(al),a));pl_(pts)}
+x.globalAlpha=1;x.lineWidth=5;x.strokeStyle=col('--c1');const bd=[];for(let b=0;b<=6.29;b+=.05)bd.push(P(Math.cos(b),Math.sin(b),0,a));pl_(bd);
+const bt=now/900,p0=P(Math.cos(bt),Math.sin(bt),0,a),p1=P(Math.cos(bt)-Math.sin(bt)*.3,Math.sin(bt)+Math.cos(bt)*.3,0,a);arr(x,p0,p1,col('--c4'),5,1);
+for(let r=.35;r<=.7;r+=.35)for(let b=0;b<6.28;b+=Math.PI/3){const z=Math.sqrt(1-r*r);arr(x,P(r*Math.cos(b),r*Math.sin(b),z,a),P(r*Math.cos(b),r*Math.sin(b),z+.2+.2*pl,a),col('--c2'),2.5,1)}
+const n1=P(0,0,1.7,a);arr(x,P(0,0,1,a),n1,col('--ink'),3,1);
+x.fillStyle=col('--ink');x.font='italic 19px "STIX Two Text",serif';x.fillText('n (right-hand rule)',n1[0]+10,n1[1]);x.fillText('∂S, counter-clockwise',20,h-24);x.fillText('curl F pierces S',w-200,h-24);
+requestAnimationFrame(f)})()}
+// divergence cube
+{const{x,w,h}=init('dv'),s=seen('dv'),V=[];for(let i=0;i<8;i++)V.push([i&1?1:-1,i&2?1:-1,i&4?1:-1]);
+(function f(now){if(!s.v)return requestAnimationFrame(f);const a=now/3500,b=.5,pl=.5+.5*Math.sin(now/450),
+P=(p,k)=>{k=k||1;const x1=p[0]*Math.cos(a)+p[2]*Math.sin(a),z1=-p[0]*Math.sin(a)+p[2]*Math.cos(a),y2=p[1]*Math.cos(b)-z1*Math.sin(b);return[w/2+x1*95*k,h/2-y2*95*k]};
+x.clearRect(0,0,w,h);x.lineWidth=2.5;x.strokeStyle=col('--c1');
+for(let i=0;i<8;i++)for(let j=i+1;j<8;j++){const d=(V[i][0]!=V[j][0])+(V[i][1]!=V[j][1])+(V[i][2]!=V[j][2]);if(d==1){const A=P(V[i]),B=P(V[j]);x.beginPath();x.moveTo(A[0],A[1]);x.lineTo(B[0],B[1]);x.stroke()}}
+const g=x.createRadialGradient(w/2,h/2,0,w/2,h/2,40+30*pl);g.addColorStop(0,col('--c4'));g.addColorStop(1,'rgba(255,200,60,0)');x.fillStyle=g;x.beginPath();x.arc(w/2,h/2,40+30*pl,0,7);x.fill();
+[[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]].forEach(n=>arr(x,P(n,.95),P(n,1.35+.5*pl),col('--c2'),4,1));
+x.fillStyle=col('--ink');x.font='italic 19px "STIX Two Text",serif';x.fillText('source: div F > 0',w/2-60,h-20);x.fillText('flux through each face = F·n dS',20,28);
+requestAnimationFrame(f)})()}
+// FTC ladder
+{const{x,w,h}=init('ft'),s=seen('ft'),f0=t=>1.2*Math.sin(t*.9)+.3*t,fp=t=>1.08*Math.cos(t*.9)+.3,X=t=>60+t/6*580,Yf=v=>175-v*40,Yd=v=>330-v*45;
+(function f(now){if(!s.v)return requestAnimationFrame(f);const T=((now-s.t0)/1000)%8,t=Math.min(1,T/6)*6;x.clearRect(0,0,w,h);
+x.strokeStyle=col('--line');x.lineWidth=1;x.beginPath();x.moveTo(40,Yd(0));x.lineTo(660,Yd(0));x.stroke();
+x.lineWidth=3;x.strokeStyle=col('--c1');x.beginPath();for(let u=0;u<=6;u+=.05)u?x.lineTo(X(u),Yf(f0(u))):x.moveTo(X(u),Yf(f0(u)));x.stroke();
+x.strokeStyle=col('--c3');x.beginPath();for(let u=0;u<=6;u+=.05)u?x.lineTo(X(u),Yd(fp(u))):x.moveTo(X(u),Yd(fp(u)));x.stroke();
+x.beginPath();x.moveTo(X(0),Yd(0));for(let u=0;u<=t;u+=.05)x.lineTo(X(u),Yd(fp(u)));x.lineTo(X(t),Yd(0));x.closePath();x.fillStyle=col('--c3');x.globalAlpha=.3;x.fill();x.globalAlpha=1;
+x.strokeStyle=col('--c4');x.lineWidth=6;x.beginPath();x.moveTo(X(t),Yf(0));x.lineTo(X(t),Yf(f0(t)));x.stroke();
+x.setLineDash([5,5]);x.lineWidth=1.5;x.strokeStyle=col('--mut');x.beginPath();x.moveTo(X(0),Yf(0));x.lineTo(X(6),Yf(0));x.stroke();x.setLineDash([]);
+x.fillStyle=col('--ink');x.font='italic 19px "STIX Two Text",serif';x.fillText('f(x)',X(6)-30,Yf(f0(6))-14);x.fillText('f′(x)',X(5.2),Yd(fp(5.2))-14);
+x.fillText('area under f′ from 0 to '+t.toFixed(2)+' = f('+t.toFixed(2)+') − f(0) = '+f0(t).toFixed(3),60,26);
+requestAnimationFrame(f)})()}
+// auto-loop driver: diagrams restart their cycle each time they scroll into view
+{const per={grid:12000,sA:9000,sB:9000,dc:10000,ac:8000,vc:16000},vs={},lt={};
+Object.keys(per).forEach(k=>{vs[k]={v:false,t:0};new IntersectionObserver(es=>es.forEach(e=>{vs[k].v=e.isIntersecting;if(e.isIntersecting)vs[k].t=performance.now()}),{threshold:.2}).observe($(k))});
+['input','pointerdown'].forEach(ev=>document.addEventListener(ev,e=>{if(!e.isTrusted)return;const el=e.target,box=el.closest&&el.closest('.ctl'),c=el.id&&per[el.id]?el:(box?box.previousElementSibling:null);if(c&&c.id&&per[c.id])LU[c.id]=performance.now()},true));
+(function lp(now){for(const k in AUTO){const o=vs[k];if(o&&o.v&&now-(LU[k]||0)>7000&&now-(lt[k]||0)>(k=='vc'?140:0)){lt[k]=now;AUTO[k](((now-o.t)%per[k])/per[k])}}requestAnimationFrame(lp)})(0)}
+</script></body></html>
